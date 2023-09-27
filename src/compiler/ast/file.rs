@@ -1,7 +1,10 @@
+use std::collections::HashMap;
+
 pub struct File {
     name: String,
 
     data_types: Vec<super::DataType>,
+    options: HashMap<String, Vec<super::Expression>>,
 }
 
 impl File {
@@ -9,6 +12,7 @@ impl File {
         Self {
             name: name.to_string(),
             data_types: Vec::new(),
+            options: HashMap::new(),
         }
     }
 
@@ -46,5 +50,27 @@ impl File {
 
     pub fn data_type_mut(&mut self, id: usize) -> Option<&mut super::DataType> {
         self.data_types.get_mut(id)
+    }
+}
+
+impl super::Optioned for File {
+    fn options(&self) -> &HashMap<String, Vec<super::Expression>> {
+        &self.options
+    }
+
+    fn options_mut(&mut self) -> &mut HashMap<String, Vec<super::Expression>> {
+        &mut self.options
+    }
+
+    fn add_option(&mut self, name: String, arguments: Vec<super::Expression>) -> bool {
+        self.options.insert(name, arguments).is_none()
+    }
+
+    fn option(&self, name: &str) -> Option<&Vec<super::Expression>> {
+        self.options.get(name)
+    }
+
+    fn option_mut(&mut self, name: &str) -> Option<&mut Vec<super::Expression>> {
+        self.options.get_mut(name)
     }
 }

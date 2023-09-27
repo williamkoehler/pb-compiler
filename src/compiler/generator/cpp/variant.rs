@@ -2,9 +2,13 @@ use std::fmt::{Formatter, Result};
 
 use crate::compiler::ast::*;
 
-pub fn generate_hpp_variant_declaration(f: &mut Formatter<'_>, variant: &Variant) -> Result {
-    write!(f, "enum {}Kind : uint16_t;\n", variant.identifier())?;
-    write!(f, "class {};\n", variant.identifier())?;
+pub fn generate_hpp_variant_declaration(
+    f: &mut Formatter<'_>,
+    indent: &mut String,
+    variant: &Variant,
+) -> Result {
+    write!(f, "{indent}enum {}Kind : uint16_t;\n", variant.identifier())?;
+    write!(f, "{indent}class {};\n", variant.identifier())?;
 
     Ok(())
 }
@@ -12,32 +16,33 @@ pub fn generate_hpp_variant_declaration(f: &mut Formatter<'_>, variant: &Variant
 pub fn generate_hpp_variant(
     f: &mut Formatter<'_>,
     file: &File,
+    indent: &mut String,
     data_type: &DataType,
     variant: &Variant,
 ) -> Result {
-    let mut indent = "\t".to_string();
-
-    write!(f, "enum {}Kind : uint16_t\n", variant.identifier())?;
-    write!(f, "{{\n")?;
+    write!(f, "{indent}enum {}Kind : uint16_t\n", variant.identifier())?;
+    write!(f, "{indent}{{\n")?;
     for (index, field) in variant.fields().iter().enumerate() {
         write!(
             f,
-            "{indent}{} = {},\n",
+            "{indent}\t{} = {},\n",
             field.identifier().get_pascal_case(),
             index + 1,
         )?;
     }
-    write!(f, "}};\n")?;
+    write!(f, "{indent}}};\n")?;
 
-    write!(f, "class {}\n", variant.identifier())?;
-    write!(f, "{{\n")?;
+    write!(f, "{indent}class {}\n", variant.identifier())?;
+    write!(f, "{indent}{{\n")?;
 
     // Private
     {
-        write!(f, "private:\n")?;
+        write!(f, "{indent}private:\n")?;
+
+        indent.push('\t');
 
         // Friends
-        super::friends::generate_hpp_friends(f, file, &mut indent, data_type.max_rank())?;
+        super::friends::generate_hpp_friends(f, file, indent, data_type.max_rank())?;
         write!(f, "\n")?;
 
         // Fields
@@ -57,11 +62,15 @@ pub fn generate_hpp_variant(
             write!(f, "{indent}\t\tuint8_t>::value>\n")?;
             write!(f, "{indent}\tvalue;\n")?;
         }
+
+        indent.pop();
     }
 
     // Public
     {
-        write!(f, "public:\n")?;
+        write!(f, "{indent}public:\n")?;
+
+        indent.push('\t');
 
         // Deconstructor
         {
@@ -153,11 +162,11 @@ pub fn generate_hpp_variant(
             };
             if enable_reader {
                 write!(f, "\n")?;
-                super::message_buffer::generate_hpp_variant_reader(f, file, &mut indent, variant)?;
+                super::message_buffer::generate_hpp_variant_reader(f, file, indent, variant)?;
             }
             if enable_writer {
                 write!(f, "\n")?;
-                super::message_buffer::generate_hpp_variant_writer(f, file, &mut indent, variant)?;
+                super::message_buffer::generate_hpp_variant_writer(f, file, indent, variant)?;
             }
         }
 
@@ -172,11 +181,11 @@ pub fn generate_hpp_variant(
             };
             if enable_reader {
                 write!(f, "\n")?;
-                super::json::generate_hpp_variant_reader(f, file, &mut indent, variant)?;
+                super::json::generate_hpp_variant_reader(f, file, indent, variant)?;
             }
             if enable_writer {
                 write!(f, "\n")?;
-                super::json::generate_hpp_variant_writer(f, file, &mut indent, variant)?;
+                super::json::generate_hpp_variant_writer(f, file, indent, variant)?;
             }
         }
 
@@ -188,9 +197,11 @@ pub fn generate_hpp_variant(
         //     write!(f, "\n")?;
         //     super::rapidjson::generate_hpp_variant_writer(f, file, &mut indent, variant)?;
         // }
+
+        indent.pop();
     }
 
-    write!(f, "}};\n")?;
+    write!(f, "{indent}}};\n")?;
 
     Ok(())
 }

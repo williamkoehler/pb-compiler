@@ -2,8 +2,12 @@ use std::fmt::{Formatter, Result};
 
 use crate::compiler::ast::*;
 
-pub fn generate_hpp_structure_declaration(f: &mut Formatter<'_>, structure: &Structure) -> Result {
-    write!(f, "class {};\n", structure.identifier())?;
+pub fn generate_hpp_structure_declaration(
+    f: &mut Formatter<'_>,
+    indent: &mut String,
+    structure: &Structure,
+) -> Result {
+    write!(f, "{indent}class {};\n", structure.identifier())?;
 
     Ok(())
 }
@@ -11,20 +15,21 @@ pub fn generate_hpp_structure_declaration(f: &mut Formatter<'_>, structure: &Str
 pub fn generate_hpp_structure(
     f: &mut Formatter<'_>,
     file: &File,
+    indent: &mut String,
     data_type: &DataType,
     structure: &Structure,
 ) -> Result {
-    let mut indent = "\t".to_string();
-
-    write!(f, "class {}\n", structure.identifier())?;
-    write!(f, "{{\n")?;
+    write!(f, "{indent}class {}\n", structure.identifier())?;
+    write!(f, "{indent}{{\n")?;
 
     // Private
     {
-        write!(f, "private:\n")?;
+        write!(f, "{indent}private:\n")?;
+
+        indent.push('\t');
 
         // Friends
-        super::friends::generate_hpp_friends(f, file, &mut indent, data_type.max_rank())?;
+        super::friends::generate_hpp_friends(f, file, indent, data_type.max_rank())?;
         write!(f, "\n")?;
 
         // Fields
@@ -37,11 +42,15 @@ pub fn generate_hpp_structure(
             )?;
         }
         write!(f, "\n")?;
+
+        indent.pop();
     }
 
     // Public
     {
-        write!(f, "public:\n")?;
+        write!(f, "{indent}public:\n")?;
+
+        indent.push('\t');
 
         // Getter and setter
         for field in structure.fields() {
@@ -76,21 +85,11 @@ pub fn generate_hpp_structure(
             };
             if enable_reader {
                 write!(f, "\n")?;
-                super::message_buffer::generate_hpp_structure_reader(
-                    f,
-                    file,
-                    &mut indent,
-                    structure,
-                )?;
+                super::message_buffer::generate_hpp_structure_reader(f, file, indent, structure)?;
             }
             if enable_writer {
                 write!(f, "\n")?;
-                super::message_buffer::generate_hpp_structure_writer(
-                    f,
-                    file,
-                    &mut indent,
-                    structure,
-                )?;
+                super::message_buffer::generate_hpp_structure_writer(f, file, indent, structure)?;
             }
         }
 
@@ -105,16 +104,18 @@ pub fn generate_hpp_structure(
             };
             if enable_reader {
                 write!(f, "\n")?;
-                super::json::generate_hpp_structure_reader(f, file, &mut indent, structure)?;
+                super::json::generate_hpp_structure_reader(f, file, indent, structure)?;
             }
             if enable_writer {
                 write!(f, "\n")?;
-                super::json::generate_hpp_structure_writer(f, file, &mut indent, structure)?;
+                super::json::generate_hpp_structure_writer(f, file, indent, structure)?;
             }
         }
+
+        indent.pop();
     }
 
-    write!(f, "}};\n")?;
+    write!(f, "{indent}}};\n")?;
 
     Ok(())
 }

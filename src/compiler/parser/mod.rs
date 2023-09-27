@@ -20,6 +20,7 @@ impl<'a> Parser<'a> {
         loop {
             let token = self.lexer.current();
             match token.kind {
+                TokenKind::OptKeyword => self.parse_option(compiler, file),
                 TokenKind::StructKeyword => self.parse_structure(compiler, file),
                 TokenKind::VariantKeyword => self.parse_variant(compiler, file),
                 TokenKind::NoToken => break,
@@ -402,7 +403,8 @@ impl<'a> Parser<'a> {
             }
             TokenKind::Literal => {
                 self.lexer.consume();
-                super::ast::Expression::Value(super::ast::Value::Literal(token.slice.to_string()))
+                let slice = token.slice;
+                super::ast::Expression::Value(super::ast::Value::Literal(slice[1..slice.len()-1].to_string()))
             }
 
             TokenKind::Minus => {

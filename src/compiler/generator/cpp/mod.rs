@@ -11,7 +11,7 @@ use format::lazy_format;
 use super::Generator;
 
 impl Generator {
-    pub fn generate_cplusplus(self) -> String {
+    pub fn generate_cplusplus(&self) -> String {
         lazy_format!(|f| file::generate_hpp_file(f, &self.file)).to_string()
     }
 }

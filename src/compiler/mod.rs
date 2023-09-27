@@ -20,7 +20,7 @@ impl Compiler {
         self.reports.as_slice()
     }
 
-    pub fn compile(&mut self, input: &str) -> Result<(), ()> {
+    pub fn compile(&mut self, input: &str) -> Option<ast::File> {
         let mut file = ast::File::new("");
 
         file.add_data_type(ast::DataType::from(ast::DataTypeKind::Boolean));
@@ -43,24 +43,16 @@ impl Compiler {
         // Parse
         parser::Parser::from(input).parse(self, &mut file);
         if !self.reports.is_empty() {
-            return Err(())
+            return None
         }
 
         // Semantic
         semantic::Semantic::new().analyse(self, &mut file);
         if !self.reports.is_empty() {
-            return Err(())
+            return None
         }
 
-        println!("{}", generator::Generator::from(file).generate_cplusplus());
-
-        // Generation
-
-        if self.reports.is_empty() {
-            Ok(())
-        } else {
-            Err(())
-        }
+        Some(file)
     }
 
     pub fn diagnose(&mut self, report: diagnostic::Report) {

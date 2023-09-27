@@ -15,8 +15,11 @@ enum Cli {
     Build {
         path: String,
 
-        #[clap(short, long)]
-        cpp: Option<String>,
+        #[clap(long = "cpp")]
+        cpp: bool,
+
+        #[clap(long = "cpp-path")]
+        cpp_path: Option<String>,
     },
 }
 
@@ -24,12 +27,16 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli {
-        Cli::Build { path, cpp } => {
+        Cli::Build {
+            path,
+            cpp,
+            cpp_path,
+        } => {
             let path = PathBuf::from(path);
 
             // Compile
             let input = {
-                let mut file = std::fs::File::open(path)
+                let mut file = std::fs::File::open(&path)
                     .with_context(|| format!("Failed to open input file"))?;
                 let mut input = String::new();
                 file.read_to_string(&mut input)
@@ -46,8 +53,11 @@ fn main() -> Result<()> {
             })?;
 
             // Generate cpp
-            if let Some(output_path) = cpp {
-                let output_path = PathBuf::from(output_path);
+            if cpp {
+                let output_path = match cpp_path {
+                    Some(output_path) => PathBuf::from(output_path),
+                    None => path.with_extension(".hpp"),
+                };
 
                 let mut output_file = std::fs::File::create(output_path)
                     .with_context(|| format!("Failed to open output file"))?;

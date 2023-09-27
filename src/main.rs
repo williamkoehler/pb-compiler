@@ -56,7 +56,7 @@ fn main() -> Result<()> {
             if cpp {
                 let output_path = match cpp_path {
                     Some(output_path) => PathBuf::from(output_path),
-                    None => path.with_extension(".hpp"),
+                    None => path.with_extension("hpp"),
                 };
 
                 let mut output_file = std::fs::File::create(output_path)

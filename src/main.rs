@@ -39,13 +39,10 @@ fn main() -> Result<()> {
 
             let mut compiler = compiler::Compiler::new();
             let file = compiler.compile(&input).with_context(|| {
-                format!(
-                    "{}",
-                    compiler
-                        .reports()
-                        .iter()
-                        .fold(String::new(), |acc, r| acc + &r.with_source_code(&input))
-                )
+                for report in compiler.reports() {
+                    print!("{}\n", report.with_source_code(&input));
+                }
+                format!("Failed to compile file")
             })?;
 
             // Generate cpp

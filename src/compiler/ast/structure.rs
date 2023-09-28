@@ -6,6 +6,9 @@ pub struct Structure {
     fields: Vec<super::Field>,
     options: HashMap<String, Vec<super::Expression>>,
 
+    // Options
+    structure_options: StructureOptions,
+
     min_size: usize,
 }
 
@@ -17,8 +20,18 @@ impl Structure {
             fields: Vec::new(),
             options: HashMap::new(),
 
+            structure_options: StructureOptions::default(),
+
             min_size: 0,
         }
+    }
+
+    pub fn structure_options(&self) -> &StructureOptions {
+        &self.structure_options
+    }
+
+    pub fn structure_options_mut(&mut self) -> &mut StructureOptions {
+        &mut self.structure_options
     }
 }
 
@@ -88,4 +101,10 @@ impl super::Optioned for Structure {
     fn option_mut(&mut self, name: &str) -> Option<&mut Vec<super::Expression>> {
         self.options.get_mut(name)
     }
+}
+
+#[derive(Default)]
+pub struct StructureOptions {
+    pub message_buffer: (bool, bool),
+    pub json: (bool, bool),
 }

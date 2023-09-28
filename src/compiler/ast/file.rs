@@ -5,6 +5,7 @@ pub struct File {
 
     data_types: Vec<super::DataType>,
     options: HashMap<String, Vec<super::Expression>>,
+    file_options: FileOptions,
 }
 
 impl File {
@@ -13,6 +14,7 @@ impl File {
             name: name.to_string(),
             data_types: Vec::new(),
             options: HashMap::new(),
+            file_options: FileOptions::default(),
         }
     }
 
@@ -51,6 +53,14 @@ impl File {
     pub fn data_type_mut(&mut self, id: usize) -> Option<&mut super::DataType> {
         self.data_types.get_mut(id)
     }
+
+    pub fn file_options(&self) -> &FileOptions {
+        &self.file_options
+    }
+
+    pub fn file_options_mut(&mut self) -> &mut FileOptions {
+        &mut self.file_options
+    }
 }
 
 impl super::Optioned for File {
@@ -73,4 +83,9 @@ impl super::Optioned for File {
     fn option_mut(&mut self, name: &str) -> Option<&mut Vec<super::Expression>> {
         self.options.get_mut(name)
     }
+}
+
+#[derive(Default)]
+pub struct FileOptions {
+    pub cpp_namespace: Vec<String>,
 }

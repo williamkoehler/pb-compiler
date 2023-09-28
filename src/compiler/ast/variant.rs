@@ -6,6 +6,9 @@ pub struct Variant {
     fields: Vec<super::Field>,
     options: HashMap<String, Vec<super::Expression>>,
 
+    // Evaluated options
+    variant_options: VariantOptions,
+
     min_size: usize,
 }
 
@@ -16,9 +19,18 @@ impl Variant {
 
             fields: Vec::new(),
             options: HashMap::new(),
+            variant_options: VariantOptions::default(),
 
             min_size: 0,
         }
+    }
+
+    pub fn variant_options(&self) -> &VariantOptions {
+        &self.variant_options
+    }
+
+    pub fn variant_options_mut(&mut self) -> &mut VariantOptions {
+        &mut self.variant_options
     }
 }
 
@@ -88,4 +100,10 @@ impl super::Optioned for Variant {
     fn option_mut(&mut self, name: &str) -> Option<&mut Vec<super::Expression>> {
         self.options.get_mut(name)
     }
+}
+
+#[derive(Default)]
+pub struct VariantOptions {
+    pub message_buffer: (bool, bool),
+    pub json: (bool, bool),
 }

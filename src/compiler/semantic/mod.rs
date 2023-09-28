@@ -320,22 +320,93 @@ impl Semantic {
     }
 
     fn analyze_options(&mut self, compiler: &mut super::Compiler, file: &mut File) {
+        // Parse file options
+        {
+            for (_, expressions) in file.options_mut() {
+                for expression in expressions {
+                    *expression = Expression::Value(self.analyse_expression(compiler, expression));
+                }
+            }
+
+            if let Some(opt) = file.option("cpp_namespace") {
+                let namespace = match opt.as_slice() {
+                    [Expression::Value(Value::Literal(v1))] => {
+                        v1.split("::").map(|x| x.to_string()).collect()
+                    }
+                    _ => vec![],
+                };
+
+                file.file_options_mut().cpp_namespace = namespace;
+            }
+        }
+
+        // Parse data type options
         for data_type in file.data_types_mut() {
             match data_type.kind_mut() {
                 DataTypeKind::Structure(structure) => {
-                    for (_, arguments) in structure.options_mut() {
-                        for argument in arguments {
-                            *argument =
-                                Expression::Value(self.analyse_expression(compiler, argument));
+                    for (_, expressions) in structure.options_mut() {
+                        for expression in expressions {
+                            *expression =
+                                Expression::Value(self.analyse_expression(compiler, expression));
                         }
+                    }
+
+                    if let Some(opt) = structure.option("message_buffer") {
+                        let (enable_reader, enable_writer) = match opt.as_slice() {
+                            [Expression::Value(v1), Expression::Value(v2)] => {
+                                (v1.is_true(), v2.is_true())
+                            }
+                            [Expression::Value(v1)] => (v1.is_true(), v1.is_true()),
+                            _ => (false, false),
+                        };
+
+                        structure.structure_options_mut().message_buffer =
+                            (enable_reader, enable_writer);
+                    }
+
+                    if let Some(opt) = structure.option("json") {
+                        let (enable_reader, enable_writer) = match opt.as_slice() {
+                            [Expression::Value(v1), Expression::Value(v2)] => {
+                                (v1.is_true(), v2.is_true())
+                            }
+                            [Expression::Value(v1)] => (v1.is_true(), v1.is_true()),
+                            _ => (false, false),
+                        };
+
+                        structure.structure_options_mut().json = (enable_reader, enable_writer);
                     }
                 }
                 DataTypeKind::Variant(variant) => {
-                    for (_, arguments) in variant.options_mut() {
-                        for argument in arguments {
-                            *argument =
-                                Expression::Value(self.analyse_expression(compiler, argument));
+                    for (_, expressions) in variant.options_mut() {
+                        for expression in expressions {
+                            *expression =
+                                Expression::Value(self.analyse_expression(compiler, expression));
                         }
+                    }
+
+                    if let Some(opt) = variant.option("message_buffer") {
+                        let (enable_reader, enable_writer) = match opt.as_slice() {
+                            [Expression::Value(v1), Expression::Value(v2)] => {
+                                (v1.is_true(), v2.is_true())
+                            }
+                            [Expression::Value(v1)] => (v1.is_true(), v1.is_true()),
+                            _ => (false, false),
+                        };
+
+                        variant.variant_options_mut().message_buffer =
+                            (enable_reader, enable_writer);
+                    }
+
+                    if let Some(opt) = variant.option("json") {
+                        let (enable_reader, enable_writer) = match opt.as_slice() {
+                            [Expression::Value(v1), Expression::Value(v2)] => {
+                                (v1.is_true(), v2.is_true())
+                            }
+                            [Expression::Value(v1)] => (v1.is_true(), v1.is_true()),
+                            _ => (false, false),
+                        };
+
+                        variant.variant_options_mut().json = (enable_reader, enable_writer);
                     }
                 }
                 _ => {}

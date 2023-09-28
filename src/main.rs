@@ -52,22 +52,25 @@ fn main() -> Result<()> {
                 format!("Failed to compile file")
             })?;
 
-            // Generate cpp
-            if cpp {
-                let output_path = match cpp_path {
-                    Some(output_path) => PathBuf::from(output_path),
-                    None => path.with_extension("g.hpp"),
-                };
-
-                let mut output_file = std::fs::File::create(output_path)
-                    .with_context(|| format!("Failed to open output file"))?;
-
+            // Generate
+            {
                 let generator = compiler::generator::Generator::from(file);
-                let code = generator.generate_cplusplus();
 
-                output_file
-                    .write(code.as_bytes())
-                    .with_context(|| format!("Failed to write to output file"))?;
+                // Generate cpp
+                if cpp {
+                    let output_path = match cpp_path {
+                        Some(output_path) => PathBuf::from(output_path),
+                        None => path.with_extension("g.hpp"),
+                    };
+
+                    let mut output_file = std::fs::File::create(output_path)
+                        .with_context(|| format!("Failed to open output file"))?;
+                    let code = generator.generate_cplusplus();
+
+                    output_file
+                        .write(code.as_bytes())
+                        .with_context(|| format!("Failed to write to output file"))?;
+                }
             }
 
             Ok(())

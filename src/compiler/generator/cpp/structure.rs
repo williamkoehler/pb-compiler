@@ -75,41 +75,23 @@ pub fn generate_hpp_structure(
         }
 
         // Message Buffer
-        if let Some(opt) = structure.option("message_buffer") {
-            let (enable_reader, enable_writer) = match opt.as_slice() {
-                [Expression::Value(enable_reader), Expression::Value(enable_writer)] => {
-                    (enable_reader.is_true(), enable_writer.is_true())
-                }
-                [Expression::Value(enable)] => (enable.is_true(), enable.is_true()),
-                _ => (false, false),
-            };
-            if enable_reader {
-                write!(f, "\n")?;
-                super::message_buffer::generate_hpp_structure_reader(f, file, indent, structure)?;
-            }
-            if enable_writer {
-                write!(f, "\n")?;
-                super::message_buffer::generate_hpp_structure_writer(f, file, indent, structure)?;
-            }
+        if structure.structure_options().message_buffer.0 {
+            write!(f, "\n")?;
+            super::message_buffer::generate_hpp_structure_reader(f, file, indent, structure)?;
+        }
+        if structure.structure_options().message_buffer.1 {
+            write!(f, "\n")?;
+            super::message_buffer::generate_hpp_structure_writer(f, file, indent, structure)?;
         }
 
         // Json
-        if let Some(opt) = structure.option("json") {
-            let (enable_reader, enable_writer) = match opt.as_slice() {
-                [Expression::Value(enable_reader), Expression::Value(enable_writer)] => {
-                    (enable_reader.is_true(), enable_writer.is_true())
-                }
-                [Expression::Value(enable)] => (enable.is_true(), enable.is_true()),
-                _ => (false, false),
-            };
-            if enable_reader {
-                write!(f, "\n")?;
-                super::json::generate_hpp_structure_reader(f, file, indent, structure)?;
-            }
-            if enable_writer {
-                write!(f, "\n")?;
-                super::json::generate_hpp_structure_writer(f, file, indent, structure)?;
-            }
+        if structure.structure_options().json.0 {
+            write!(f, "\n")?;
+            super::json::generate_hpp_structure_reader(f, file, indent, structure)?;
+        }
+        if structure.structure_options().json.1 {
+            write!(f, "\n")?;
+            super::json::generate_hpp_structure_writer(f, file, indent, structure)?;
         }
 
         indent.pop();

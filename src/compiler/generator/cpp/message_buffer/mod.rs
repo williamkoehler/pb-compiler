@@ -13,7 +13,7 @@ pub fn generate_hpp_structure_reader(
 ) -> Result {
     write!(
         f,
-        "{indent}bool Read(const MessageBuffer& _message_buffer)\n"
+        "{indent}bool Deserialize(const server::scripting::sdk::MessageBuffer& _message_buffer)\n"
     )?;
     write!(f, "{indent}{{\n")?;
 
@@ -60,7 +60,7 @@ pub fn generate_hpp_structure_writer(
     indent: &mut String,
     structure: &Structure,
 ) -> Result {
-    write!(f, "{indent}void Write(MessageBuffer& _message_buffer)\n")?;
+    write!(f, "{indent}void Serialize(server::scripting::sdk::MessageBuffer& _message_buffer)\n")?;
     write!(f, "{indent}{{\n")?;
 
     {
@@ -105,7 +105,7 @@ pub fn generate_hpp_variant_reader(
     indent: &mut String,
     variant: &Variant,
 ) -> Result {
-    write!(f, "{indent}bool Read(MessageBuffer& _message_buffer)\n")?;
+    write!(f, "{indent}bool Deserialize(server::scripting::sdk::MessageBuffer& _message_buffer)\n")?;
     write!(f, "{indent}{{\n")?;
 
     {
@@ -151,7 +151,7 @@ pub fn generate_hpp_variant_writer(
     indent: &mut String,
     variant: &Variant,
 ) -> Result {
-    write!(f, "{indent}void Write(MessageBuffer& _message_buffer)\n")?;
+    write!(f, "{indent}void Serialize(server::scripting::sdk::MessageBuffer& _message_buffer)\n")?;
     write!(f, "{indent}{{\n")?;
 
     {

@@ -11,7 +11,7 @@ pub fn generate_hpp_structure_reader(
     indent: &mut String,
     structure: &Structure,
 ) -> Result {
-    write!(f, "{indent}bool Read(const rapidjson::Value& _value)\n")?;
+    write!(f, "{indent}bool Deserialize(const rapidjson::Value& _value)\n")?;
     write!(f, "{indent}{{\n")?;
 
     {
@@ -39,7 +39,7 @@ pub fn generate_hpp_structure_writer(
     indent: &mut String,
     structure: &Structure,
 ) -> Result {
-    write!(f, "{indent}void Write(rapidjson::Value& _value, rapidjson::Document::AllocatorType& _allocator)\n")?;
+    write!(f, "{indent}void Serialize(rapidjson::Value& _value, rapidjson::Document::AllocatorType& _allocator)\n")?;
     write!(f, "{indent}{{\n")?;
 
     {
@@ -64,7 +64,7 @@ pub fn generate_hpp_variant_reader(
     indent: &mut String,
     variant: &Variant,
 ) -> Result {
-    write!(f, "{indent}bool Read(rapidjson::Value& _value)\n")?;
+    write!(f, "{indent}bool Deserialize(rapidjson::Value& _value)\n")?;
     write!(f, "{indent}{{\n")?;
 
     {
@@ -93,7 +93,7 @@ pub fn generate_hpp_variant_writer(
     indent: &mut String,
     variant: &Variant,
 ) -> Result {
-    write!(f, "{indent}void Write(rapidjson::Value& _value, rapidjson::Document::AllocatorType& _allocator)\n")?;
+    write!(f, "{indent}void Serialize(rapidjson::Value& _value, rapidjson::Document::AllocatorType& _allocator)\n")?;
     write!(f, "{indent}{{\n")?;
 
     {

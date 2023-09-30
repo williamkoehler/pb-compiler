@@ -70,8 +70,8 @@ pub fn generate_hpp_file(f: &mut Formatter<'_>, file: &File) -> Result {
 
     // Leave namespaces
     for _ in &namespaces {
-        write!(f, "{indent}}}\n")?;
         indent.pop();
+        write!(f, "{indent}}}\n")?;
     }
 
     Ok(())
